@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const PRESETS = {
   tinker_to_jbab: {
     id: "tinker_to_jbab",
-    title: "Tinker AFB to JBAB Planner",
+    title: "Tinker AFB to JBAB",
     origin: "Tinker AFB, OK",
     destination: "JBAB (Joint Base Anacostia-Bolling), D.C.",
     pcsDate: "2026-09-15",
@@ -11,12 +11,13 @@ const PRESETS = {
     budgetCap: 2500,
     schoolCutoffMonth: 9,
     schoolCutoffDay: 30,
+    branch: "Navy",
     children: [
       { id: 1, name: "Your Daughter (Girl)", dob: "2022-01-19", customNote: "Meets 4-by-Sept-30 cutoff. Fully qualifies for free, full-day public preschool PK4 in Washington D.C." },
       { id: 2, name: "Your Son (Boy)", dob: "2023-05-20", customNote: "Meets 3-by-Sept-30 cutoff. Fully qualifies for free, full-day public preschool PK3 in Washington D.C." }
     ],
     commutes: [
-      { id: 1, name: "Navy Yard NFCU / Base", distance: "3.5 miles", time: "8 - 12 mins", note: "Straight shot over South Capitol St Bridge. Low stress, matches husband's drop-off." },
+      { id: 1, name: "Navy Yard NFCU / Base", distance: "3.5 miles", time: "8 - 12 mins", note: "Straight shot over South Capitol St Bridge. Low stress, matches drop-off coordinates." },
       { id: 2, name: "Crystal City NFCU (VA)", distance: "6.2 miles", time: "12 - 18 mins", note: "Split-commute across the Potomac. Requires coordination." },
       { id: 3, name: "Hybla Valley NFCU (Alexandria)", distance: "11.4 miles", time: "18 - 26 mins", note: "High commute strain. Direct bottleneck at the Woodrow Wilson Bridge." }
     ],
@@ -25,44 +26,23 @@ const PRESETS = {
       { id: 2, name: "Leckie Education Campus", type: "Zoned Public (DCPS)", hours: "8:45 AM - 3:15 PM", notes: "Guaranteed right-to-attend for K+. Dedicated school bus picks up inside base housing." },
       { id: 3, name: "JBAB Child Development Center", type: "Subsidized Military Care", hours: "6:00 AM - 6:00 PM", notes: "Great fallback for early 06:00 shifts, but high waitlists. Sign up early on MilitaryChildCare.com." }
     ]
-  },
-  ramstein_to_sandiego: {
-    id: "ramstein_to_sandiego",
-    title: "Ramstein AB to San Diego Planner",
-    origin: "Ramstein AB, Germany",
-    destination: "Naval Base San Diego, CA",
-    pcsDate: "2026-07-10",
-    settleDate: "2026-08-15",
-    budgetCap: 3200,
-    schoolCutoffMonth: 9,
-    schoolCutoffDay: 1,
-    children: [
-      { id: 1, name: "Older Child", dob: "2021-05-15", customNote: "Eligible for Transitional Kindergarten (TK) in California public schools." },
-      { id: 2, name: "Younger Child", dob: "2023-11-10", customNote: "Too young for public preschool; will require subsidized Navy CDC or off-base daycare." }
-    ],
-    commutes: [
-      { id: 1, name: "Naval Base Wet Side", distance: "2.1 miles", time: "5 - 10 mins", note: "Extremely close if living in Chollas Heights military housing." },
-      { id: 2, name: "NFCU Mission Valley Branch", distance: "8.5 miles", time: "15 - 25 mins", note: "Straight drive up Interstate 15. Commute is heavy during peak rush hours." }
-    ],
-    schools: [
-      { id: 1, name: "Silver Strand Elementary", type: "Coronado Unified", hours: "8:10 AM - 2:40 PM", notes: "Highly rated military-connected school; requires inter-district transfer if living off-base." },
-      { id: 2, name: "Murphy Canyon Head Start", type: "On-Base Subsidized", hours: "8:00 AM - 2:30 PM", notes: "Income-capped and priority placement for junior enlisted families." }
-    ]
   }
 };
 
 export default function App() {
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(1);
   const [activeTab, setActiveTab] = useState('planner'); // 'planner', 'customizer', 'github'
-  const [selectedPreset, setSelectedPreset] = useState('tinker_to_jbab');
   
-  // Customizer state
-  const [origin, setOrigin] = useState(PRESETS.tinker_to_jbab.origin);
-  const [destination, setDestination] = useState(PRESETS.tinker_to_jbab.destination);
-  const [pcsDate, setPcsDate] = useState(PRESETS.tinker_to_jbab.pcsDate);
-  const [settleDate, setSettleDate] = useState(PRESETS.tinker_to_jbab.settleDate);
-  const [budgetCap, setBudgetCap] = useState(PRESETS.tinker_to_jbab.budgetCap);
-  const [schoolCutoffMonth, setSchoolCutoffMonth] = useState(PRESETS.tinker_to_jbab.schoolCutoffMonth);
-  const [schoolCutoffDay, setSchoolCutoffDay] = useState(PRESETS.tinker_to_jbab.schoolCutoffDay);
+  // Customizer and Wizard Shared states
+  const [origin, setOrigin] = useState("Tinker AFB, OK");
+  const [destination, setDestination] = useState("JBAB (Joint Base Anacostia-Bolling), D.C.");
+  const [pcsDate, setPcsDate] = useState("2026-09-15");
+  const [settleDate, setSettleDate] = useState("2026-11-15");
+  const [budgetCap, setBudgetCap] = useState(2500);
+  const [schoolCutoffMonth, setSchoolCutoffMonth] = useState(9);
+  const [schoolCutoffDay, setSchoolCutoffDay] = useState(30);
+  const [branch, setBranch] = useState("Navy");
   
   const [childrenList, setChildrenList] = useState(PRESETS.tinker_to_jbab.children);
   const [commuteList, setCommuteList] = useState(PRESETS.tinker_to_jbab.commutes);
@@ -72,9 +52,58 @@ export default function App() {
   const [targetSchoolYear, setTargetSchoolYear] = useState(2026);
   const [showExporter, setShowExporter] = useState(false);
 
+  const handleNextStep = (nextStepNumber) => {
+    if (nextStepNumber === 2 && !destination.trim()) {
+      alert("Please enter where you are moving next!");
+      return;
+    }
+    if (nextStepNumber === 4 && !origin.trim()) {
+      alert("Please enter your current location!");
+      return;
+    }
+    setOnboardingStep(nextStepNumber);
+  };
+
+  const handleSelectBranch = (selectedBranch) => {
+    setBranch(selectedBranch);
+  };
+
+  const handleFinishOnboarding = () => {
+    if (!pcsDate) {
+      alert("Please select your projected move date!");
+      return;
+    }
+
+    // Automatically calculate settlement date to be 2 months later
+    const dateObj = new Date(pcsDate);
+    dateObj.setMonth(dateObj.getMonth() + 2);
+    setSettleDate(dateObj.toISOString().split('T')[0]);
+
+    // Pre-seed matching templates if user selected JBAB or Washington DC
+    if (destination.toLowerCase().includes("jbab") || destination.toLowerCase().includes("washington") || destination.toLowerCase().includes("d.c.")) {
+      setChildrenList(PRESETS.tinker_to_jbab.children);
+      setCommuteList(PRESETS.tinker_to_jbab.commutes);
+      setSchoolsList(PRESETS.tinker_to_jbab.schools);
+    } else {
+      setChildrenList([
+        { id: 1, name: "Your Daughter (Girl)", dob: "2022-01-19", customNote: "Check local cutoff rules." },
+        { id: 2, name: "Your Son (Boy)", dob: "2023-05-20", customNote: "Check local nursery school requirements." }
+      ]);
+      setCommuteList([
+        { id: 1, name: "Primary Workplace", distance: "5.2 miles", time: "12 - 15 mins", note: "Standard commute routing." },
+        { id: 2, name: "Secondary Office / Local Hub", distance: "12.4 miles", time: "22 - 30 mins", note: "Alternate Highway Route." }
+      ]);
+      setSchoolsList([
+        { id: 1, name: "Local Zoned Primary School", type: "Public School Option", hours: "8:30 AM - 3:00 PM", notes: "Check boundary zoning map on arrival." },
+        { id: 2, name: "Community Pre-School Center", type: "Subsidized Early Care", hours: "7:00 AM - 6:00 PM", notes: "Great fallback for dual-career early shifts." }
+      ]);
+    }
+
+    setOnboardingComplete(true);
+  };
+
   const loadPreset = (presetKey) => {
     const p = PRESETS[presetKey];
-    setSelectedPreset(presetKey);
     setOrigin(p.origin);
     setDestination(p.destination);
     setPcsDate(p.pcsDate);
@@ -82,6 +111,7 @@ export default function App() {
     setBudgetCap(p.budgetCap);
     setSchoolCutoffMonth(p.schoolCutoffMonth);
     setSchoolCutoffDay(p.schoolCutoffDay);
+    setBranch(p.branch);
     setChildrenList(p.children);
     setCommuteList(p.commutes);
     setSchoolsList(p.schools);
@@ -89,7 +119,7 @@ export default function App() {
   };
 
   const calculateAgeDetails = (dobString) => {
-    if (!dobString) return { years: 0, months: 0, formatted: "N/A", meetsCutoff: false };
+    if (!dobString) return { targetFormatted: "N/A", gradeLabel: "N/A" };
     const dob = new Date(dobString);
     const targetDate = new Date(targetSchoolYear, schoolCutoffMonth - 1, schoolCutoffDay);
     
@@ -129,6 +159,7 @@ export default function App() {
       budgetCap,
       schoolCutoffMonth,
       schoolCutoffDay,
+      branch,
       children: childrenList,
       commutes: commuteList,
       schools: schoolsList
@@ -175,42 +206,148 @@ export default function App() {
     setSchoolsList(schoolsList.filter(s => s.id !== id));
   };
 
+  if (!onboardingComplete) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur-md">
+          {/* Progress indicators */}
+          <div className="flex gap-2 mb-8 justify-center">
+            {[1, 2, 3, 4].map(idx => (
+              <div 
+                key={idx} 
+                className={`h-1.5 w-10 rounded-full transition-all duration-300 ${onboardingStep >= idx ? 'bg-indigo-500' : 'bg-slate-800'}`}
+              />
+            ))}
+          </div>
+
+          {/* STEP 1: Destination */}
+          {onboardingStep === 1 && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h2 className="text-xl md:text-2xl font-extrabold text-white">Where are you moving to next?</h2>
+                <p className="text-xs text-slate-400">Your target city, base, state, or neighborhood.</p>
+              </div>
+              <input 
+                type="text" 
+                value={destination} 
+                onChange={(e) => setDestination(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500" 
+                placeholder="e.g. JBAB, Washington D.C., San Diego, CA"
+              />
+              <button 
+                onClick={() => handleNextStep(2)} 
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm py-3 rounded-xl transition-all"
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
+          {/* STEP 2: Branch selection */}
+          {onboardingStep === 2 && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h2 className="text-xl md:text-2xl font-extrabold text-white">What branch of service are you in?</h2>
+                <p className="text-xs text-slate-400">Select your branch, or choose civilian below.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {["Navy", "Air Force", "Army", "Marine Corps", "Space Force", "Coast Guard"].map(b => (
+                  <button 
+                    key={b}
+                    onClick={() => handleSelectBranch(b)}
+                    className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all ${branch === b ? 'border-indigo-500 bg-indigo-950 text-white' : 'border-slate-800 bg-slate-950 text-slate-400'}`}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+              <button 
+                onClick={() => handleSelectBranch("None")}
+                className={`w-full py-3 px-4 rounded-xl border text-xs font-bold transition-all mt-2 ${branch === "None" ? 'border-indigo-500 bg-indigo-950 text-white' : 'border-slate-800 bg-slate-950 text-slate-400'}`}
+              >
+                None / Civilian Relocation
+              </button>
+              <div className="flex gap-2 pt-4">
+                <button onClick={() => handleNextStep(1)} className="w-1/3 bg-slate-950 text-slate-400 py-3 rounded-xl border border-slate-800">Back</button>
+                <button onClick={() => handleNextStep(3)} className="w-2/3 bg-indigo-600 text-white py-3 rounded-xl font-bold">Continue</button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Origin Station */}
+          {onboardingStep === 3 && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h2 className="text-xl md:text-2xl font-extrabold text-white">
+                  {branch === "None" ? "Where are you currently moving from?" : "Where are you currently stationed?"}
+                </h2>
+                <p className="text-xs text-slate-400">Your current base, city, or residence.</p>
+              </div>
+              <input 
+                type="text" 
+                value={origin} 
+                onChange={(e) => setOrigin(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500" 
+                placeholder="e.g. Tinker AFB, OK, Dallas, TX"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => handleNextStep(2)} className="w-1/3 bg-slate-950 text-slate-400 py-3 rounded-xl border border-slate-800">Back</button>
+                <button onClick={() => handleNextStep(4)} className="w-2/3 bg-indigo-600 text-white py-3 rounded-xl font-bold">Continue</button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: Date Input */}
+          {onboardingStep === 4 && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h2 className="text-xl md:text-2xl font-extrabold text-white">
+                  {branch === "None" ? "When are you projected to move?" : "When are you projected to move (PCS)?"}
+                </h2>
+                <p className="text-xs text-slate-400 font-normal">We'll use this to build out dates and calculate age cutoffs.</p>
+              </div>
+              <input 
+                type="date" 
+                value={pcsDate} 
+                onChange={(e) => setPcsDate(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500" 
+              />
+              <div className="flex gap-2">
+                <button onClick={() => handleNextStep(3)} className="w-1/3 bg-slate-950 text-slate-400 py-3 rounded-xl border border-slate-800">Back</button>
+                <button onClick={handleFinishOnboarding} className="w-2/3 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-600/20">Generate Dashboard</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans antialiased">
       
-      {/* Dynamic Navigation Header */}
+      {/* Navigation Header */}
       <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-6 py-4 shadow-md">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div className="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-xl">🏠</span>
             </div>
             <div>
               <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                NextBase <span className="text-indigo-400 text-sm font-medium px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Template</span>
+                NextBase <span className="text-indigo-400 text-sm font-medium px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Relocation Planner</span>
               </h1>
-              <p className="text-xs text-slate-400">Collaborative Educational & Commute Planner • Built by military spouses, designed for everyone</p>
+              <p className="text-xs text-slate-400">Collaborative Educational & Commute Planner • For any move on Earth</p>
             </div>
           </div>
 
-          {/* Quick Presets */}
-          <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-800 p-1.5 rounded-xl">
-            <span className="text-xs text-slate-400 px-2 font-bold uppercase tracking-wider">Presets:</span>
-            <button
-              onClick={() => loadPreset('tinker_to_jbab')}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all font-semibold ${
-                selectedPreset === 'tinker_to_jbab' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
-              }`}
+          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
+            <span className="font-bold text-slate-300">Affiliation: {branch}</span>
+            <button 
+              onClick={() => { setOnboardingStep(1); setOnboardingComplete(false); }}
+              className="ml-2 text-[10px] bg-slate-800 border border-slate-700 rounded px-2 py-0.5 text-slate-400 hover:text-white"
             >
-              Tinker ➔ JBAB
-            </button>
-            <button
-              onClick={() => loadPreset('ramstein_to_sandiego')}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all font-semibold ${
-                selectedPreset === 'ramstein_to_sandiego' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Ramstein ➔ San Diego
+              Reset Setup
             </button>
           </div>
         </div>
@@ -237,14 +374,6 @@ export default function App() {
           >
             ⚙️ Customize NextBase (Fork Config)
           </button>
-          <button
-            onClick={() => setActiveTab('github')}
-            className={`flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px] ${
-              activeTab === 'github' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-950/20'
-            }`}
-          >
-            🐙 Get Free GitHub Website
-          </button>
         </div>
 
         {/* ==================== TAB 1: PLANNER ==================== */}
@@ -254,7 +383,7 @@ export default function App() {
             {/* Left Sidebar */}
             <div className="lg:col-span-4 flex flex-col gap-6">
               
-              {/* trajectory */}
+              {/* Relocation details */}
               <div className="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
                 
@@ -271,7 +400,9 @@ export default function App() {
 
                   <div className="grid grid-cols-2 gap-4 pt-1 border-t border-slate-900">
                     <div>
-                      <div className="text-[11px] text-slate-500 font-bold">DEPARTURE DATE</div>
+                      <div className="text-[11px] text-slate-500 font-bold uppercase">
+                        {branch === "None" ? "MOVE DATE" : "DEPARTURE DATE"}
+                      </div>
                       <div className="text-xs font-semibold text-slate-300 mt-0.5">
                         {pcsDate ? new Date(pcsDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) : "N/A"}
                       </div>
@@ -307,7 +438,7 @@ export default function App() {
                       className={`w-full text-left p-3.5 rounded-xl border transition-all duration-150 ${
                         selectedCommuteId === commute.id
                           ? 'border-indigo-500 bg-indigo-600/10 text-white'
-                          : 'border-slate-850 bg-slate-900/20 text-slate-400 hover:border-slate-700'
+                          : 'border-slate-855 bg-slate-900/20 text-slate-400 hover:border-slate-700'
                       }`}
                     >
                       <div className="flex justify-between items-center font-bold text-xs">
@@ -340,7 +471,7 @@ export default function App() {
                     <select 
                       value={targetSchoolYear}
                       onChange={(e) => setTargetSchoolYear(parseInt(e.target.value))}
-                      className="bg-slate-900 border border-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-300"
+                      className="bg-slate-900 border border-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none text-slate-300"
                     >
                       <option value={2026}>Fall SY 2026-2027</option>
                       <option value={2027}>Fall SY 2027-2028</option>
@@ -353,7 +484,7 @@ export default function App() {
                   {childrenList.map((child) => {
                     const ageDetails = calculateAgeDetails(child.dob);
                     return (
-                      <div key={child.id} className="bg-slate-900/50 border border-slate-855 rounded-xl overflow-hidden p-4">
+                      <div key={child.id} className="bg-slate-900/50 border border-slate-855 rounded-xl p-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="font-bold text-sm text-white">{child.name}</h4>
@@ -423,7 +554,7 @@ export default function App() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-300 leading-relaxed pt-1">
-                      {commuteList.find(c => c.id === selectedCommuteId).note || "No specific route note provided for this location. Edit this preset in the Customizer tab to add specialized insights."}
+                      {commuteList.find(c => c.id === selectedCommuteId).note || "No specific route note provided for this location."}
                     </p>
                   </div>
                 ) : (
@@ -451,7 +582,9 @@ export default function App() {
             {/* Base Station Basics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-slate-900 pb-6">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Origin Station / Base Name</label>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">
+                  {branch === "None" ? "Origin Location" : "Origin Station / Base Name"}
+                </label>
                 <input
                   type="text"
                   value={origin}
@@ -460,7 +593,9 @@ export default function App() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Destination Station / Base Name</label>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">
+                  {branch === "None" ? "Destination Location" : "Destination Station / Base Name"}
+                </label>
                 <input
                   type="text"
                   value={destination}
@@ -469,7 +604,9 @@ export default function App() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Departure Date</label>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">
+                  {branch === "None" ? "Target Move Date" : "PCS Departure Date"}
+                </label>
                 <input
                   type="date"
                   value={pcsDate}
@@ -651,7 +788,7 @@ export default function App() {
 
               <div className="space-y-4">
                 {schoolsList.map((s) => (
-                  <div key={s.id} className="bg-slate-900 p-4 rounded-xl border border-slate-850 flex flex-wrap gap-4 items-end">
+                  <div key={s.id} className="bg-slate-900 p-4 rounded-xl border border-slate-855 flex flex-wrap gap-4 items-end">
                     <div className="flex-1 min-w-[180px]">
                       <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Facility Name</label>
                       <input
@@ -728,74 +865,13 @@ export default function App() {
           </div>
         )}
 
-        {/* ==================== TAB 3: GITHUB ==================== */}
-        {activeTab === 'github' && (
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-            <div className="border-b border-slate-900 pb-4">
-              <h3 className="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
-                <span>🐙 NextBase Free GitHub Deployment Blueprint</span>
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                You can publish this as a live website on your private GitHub account at absolutely zero cost. Non-tech-savvy users can load, change, and view maps immediately!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Step 1 */}
-              <div className="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                <div className="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">
-                  1
-                </div>
-                <h4 className="font-extrabold text-sm text-slate-200">Initialize Repository</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Go to <a href="https://github.com" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-semibold">GitHub.com</a> and sign in. Create a new public repository named:
-                  <code className="block bg-slate-950 text-emerald-500 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800">nextbase-planner</code>
-                </p>
-              </div>
-
-              {/* Step 2 */}
-              <div className="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                <div className="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">
-                  2
-                </div>
-                <h4 className="font-extrabold text-sm text-slate-200">Add index.html File</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Inside your repository, commit your single web app file as:
-                  <code className="block bg-slate-950 text-emerald-500 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800">index.html</code>
-                  Your static customizer is compiled completely inside this single file structure!
-                </p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                <div className="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">
-                  3
-                </div>
-                <h4 className="font-extrabold text-sm text-slate-200">Host for Free!</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Navigate to your repository’s <strong>Settings ➔ Pages</strong> tab. Select the <strong>main</strong> branch and hit <strong>Save</strong>. Within 30 seconds, your page is live for the world!
-                </p>
-              </div>
-
-            </div>
-
-            <div className="p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl space-y-1 text-xs">
-              <strong className="text-indigo-300">Making it Universal:</strong>
-              <p className="text-slate-300 leading-relaxed mt-1">
-                By keeping the "Customize NextBase" editor interface directly in the UI, any family who finds your link can customize school dates, names, and routes right on their screen. They can then save their own configuration file, making this a general engine for all moves globally.
-              </p>
-            </div>
-          </div>
-        )}
-
       </main>
 
       <footer className="border-t border-slate-800 bg-slate-950 py-6 px-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div>© 2026 NextBase Open-Source Relocation Blueprint. Built for families everywhere.</div>
           <div className="flex gap-4">
-            <span className="hover:text-indigo-400 transition-colors cursor-pointer">Fork Repository</span>
+            <span onClick={() => { setOnboardingStep(1); setOnboardingComplete(false); }} className="hover:text-indigo-400 transition-colors cursor-pointer">Setup Wizard</span>
             <span>•</span>
             <span className="hover:text-indigo-400 transition-colors cursor-pointer">Submit Base Preset</span>
           </div>
