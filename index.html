@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextBase - Global Relocation, School & Commute Planner</title>
+    <title>ToMoveTo - Global Relocation, School & Commute Planner</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Premium Icons -->
@@ -112,18 +112,18 @@
 
     <!-- ONBOARDING WIZARD SCREEN -->
     <div id="onboarding-screen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/40 via-slate-950 to-slate-950 -z-10"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/20 via-slate-950 to-slate-950 -z-10"></div>
         
         <!-- Wizard Card Container -->
         <div class="max-w-xl w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
             
             <!-- Branding Header inside Wizard -->
             <div class="flex items-center gap-3 mb-8 justify-center">
-                <div class="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                <div class="h-10 w-10 bg-gradient-to-tr from-amber-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-house-chimney text-lg text-white"></i>
                 </div>
-                <h1 class="text-2xl font-extrabold tracking-tight text-white">NextBase</h1>
+                <h1 class="text-2xl font-extrabold tracking-tight text-white">ToMoveTo</h1>
             </div>
 
             <!-- Progress Indicators -->
@@ -144,9 +144,9 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
                         <i class="fa-solid fa-map-pin"></i>
                     </span>
-                    <input type="text" id="wiz-dest" oninput="wizardData.destination = this.value" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder-slate-600" placeholder="e.g. JBAB, Washington D.C., San Diego, CA">
+                    <input type="text" id="wiz-dest" oninput="wizardData.destination = this.value" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none placeholder-slate-600" placeholder="e.g. JBAB, Washington D.C., San Diego, CA">
                 </div>
-                <button onclick="nextStep(2)" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm py-3 px-4 rounded-xl transition-all shadow flex items-center justify-center gap-2">
+                <button onclick="nextStep(2)" class="w-full bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white font-extrabold text-sm py-3 px-4 rounded-xl transition-all shadow flex items-center justify-center gap-2">
                     Continue <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -224,7 +224,7 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
                         <i class="fa-solid fa-calendar-alt"></i>
                     </span>
-                    <input type="date" id="wiz-date" oninput="wizardData.pcsDate = this.value" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                    <input type="date" id="wiz-date" oninput="wizardData.pcsDate = this.value" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none">
                 </div>
                 <div class="flex gap-2">
                     <button onclick="nextStep(3)" class="w-1/3 bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-400 font-bold text-xs py-3 rounded-xl transition-all">
@@ -249,20 +249,20 @@
         <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-4 py-4 md:px-6 shadow-md">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <div class="h-10 w-10 bg-gradient-to-tr from-amber-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
                         <i class="fa-solid fa-house-chimney text-lg text-white"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                            NextBase <span class="text-indigo-400 text-xs font-semibold px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Relocation & School Planner</span>
+                        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                            ToMoveTo <span class="text-amber-400 text-xs font-semibold px-2 py-0.5 bg-amber-950/50 border border-amber-800/40 rounded-full">Global Relocation & School Planner</span>
                         </h1>
-                        <p class="text-xs text-slate-400">Designed to map out schools, commutes, and budgets for your next home base.</p>
+                        <p class="text-xs text-slate-400">Warm & supportive mapping of schools, commutes, and budgets for your next home station.</p>
                     </div>
                 </div>
 
                 <!-- Preset / Affiliation Ribbon -->
                 <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800 p-1 rounded-xl w-fit self-start md:self-auto text-xs px-3 py-1.5">
-                    <span id="header-branch-icon" class="text-indigo-400"><i class="fa-solid fa-shield-halved"></i></span>
+                    <span id="header-branch-icon" class="text-amber-400"><i class="fa-solid fa-shield-halved"></i></span>
                     <span id="header-affiliation-lbl" class="font-bold text-slate-200">Affiliation: None</span>
                     <button onclick="resetOnboarding()" class="ml-3 text-[10px] bg-slate-800 hover:bg-slate-750 border border-slate-700 px-2 py-0.5 rounded text-slate-400 hover:text-white transition-all">
                         <i class="fa-solid fa-rotate-left"></i> Reset
@@ -277,10 +277,10 @@
             <!-- Tab Navigation Bar -->
             <div class="bg-slate-950 p-1 rounded-xl border border-slate-850 flex flex-wrap gap-1 shadow-inner">
                 <button onclick="switchTab('planner')" id="tab-planner" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
-                    <i class="fa-solid fa-chart-line"></i> Active NextBase Panel
+                    <i class="fa-solid fa-chart-line"></i> Active ToMoveTo Panel
                 </button>
                 <button onclick="switchTab('customizer')" id="tab-customizer" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
-                    <i class="fa-solid fa-sliders"></i> Customize Your NextBase
+                    <i class="fa-solid fa-sliders"></i> Customize Your ToMoveTo
                 </button>
                 <button onclick="switchTab('publish')" id="tab-publish" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
                     <i class="fa-brands fa-github text-emerald-400"></i> Publish to GitHub Pages (Free!)
@@ -288,7 +288,7 @@
             </div>
 
             <!-- Custom Notification toast container -->
-            <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl bg-slate-950 border border-indigo-500/30 text-xs text-indigo-300 shadow-xl flex items-center gap-2 transition-all">
+            <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl bg-slate-950 border border-amber-500/30 text-xs text-amber-300 shadow-xl flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-check-circle text-emerald-400"></i>
                 <span id="toast-msg">Text copied successfully</span>
             </div>
@@ -411,7 +411,7 @@
             <div id="view-customizer" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-6">
                 <div>
                     <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-indigo-400"></i> NextBase Customizer & Form Forking
+                        <i class="fa-solid fa-sliders text-amber-400"></i> ToMoveTo Customizer & Form Forking
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">
                         Fill in the values below to instantly update the map and scheduler dashboard. You can customize the children's birth dates, commute distances, and exact local schools.
@@ -522,14 +522,14 @@
                         <i class="fa-brands fa-github"></i> Free Instant Website Deployment (3 Clicks)
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">
-                        Follow these simple steps to host NextBase as a living, public website that other families can open directly in their browser without any tech setup.
+                        Follow these simple steps to host ToMoveTo as a living, public website that other families can open directly in their browser without any tech setup.
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Step 1 -->
-                    <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                        <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">1</div>
+                    <div class="bg-slate-900/40 border border-slate-855 p-5 rounded-2xl space-y-3">
+                        <div class="h-8 w-8 bg-amber-600/20 text-amber-400 font-black flex items-center justify-center rounded-full text-sm border border-amber-800">1</div>
                         <h4 class="font-extrabold text-sm text-slate-200">1. Download This Web File</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
                             Right-click anywhere on this website preview page and select <strong>"Save Page As..."</strong>, or download this template code directly and name the file precisely:
@@ -538,29 +538,29 @@
                     </div>
 
                     <!-- Step 2 -->
-                    <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                        <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">2</div>
+                    <div class="bg-slate-900/40 border border-slate-855 p-5 rounded-2xl space-y-3">
+                        <div class="h-8 w-8 bg-amber-600/20 text-amber-400 font-black flex items-center justify-center rounded-full text-sm border border-amber-800">2</div>
                         <h4 class="font-extrabold text-sm text-slate-200">2. Drag & Drop to GitHub</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Go to <a href="https://github.com" target="_blank" rel="noopener" class="text-indigo-400 underline font-semibold hover:text-indigo-300">GitHub.com</a> (create a free account if you don't have one). Click <strong>New Repository</strong>, name it <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">nextbase</code>, and check "Public". Drag your <code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">index.html</code> file directly into the browser to upload it!
+                            Go to <a href="https://github.com" target="_blank" rel="noopener" class="text-amber-400 underline font-semibold hover:text-amber-300">GitHub.com</a> (create a free account if you don't have one). Click <strong>New Repository</strong>, name it <code class="bg-slate-950 text-amber-300 px-1 py-0.5 rounded">tomoveto</code>, and check "Public". Drag your <code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">index.html</code> file directly into the browser to upload it!
                         </p>
                     </div>
 
                     <!-- Step 3 -->
-                    <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
-                        <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">3</div>
+                    <div class="bg-slate-900/40 border border-slate-855 p-5 rounded-2xl space-y-3">
+                        <div class="h-8 w-8 bg-amber-600/20 text-amber-400 font-black flex items-center justify-center rounded-full text-sm border border-amber-800">3</div>
                         <h4 class="font-extrabold text-sm text-slate-200">3. Activate the Live Link</h4>
                         <p class="text-xs text-slate-400 leading-relaxed">
                             In your new repository, go to <strong>Settings ➔ Pages</strong>. Under "Branch", select <strong>main</strong> (or master), click <strong>Save</strong>. In 30 seconds, your site is live at:
-                            <code class="block bg-slate-950 text-emerald-400 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800 break-all">https://yourusername.github.io/nextbase/</code>
+                            <code class="block bg-slate-950 text-emerald-400 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800 break-all">https://yourusername.github.io/tomoveto/</code>
                         </p>
                     </div>
                 </div>
 
-                <div class="p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl space-y-2 text-xs">
-                    <strong class="text-indigo-300 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> How this serves other families:</strong>
+                <div class="p-4 bg-amber-950/10 border border-amber-900/30 rounded-xl space-y-2 text-xs">
+                    <strong class="text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> How this serves other families:</strong>
                     <p class="text-slate-300 leading-relaxed">
-                        Once live, any other moving family can visit your link and use the interactive sliders and profile managers to update the NextBase dashboard for *their* specific destination. No coding required—they simply interact with the webpage you hosted!
+                        Once live, any other moving family can visit your link and use the interactive sliders and profile managers to update the ToMoveTo dashboard for *their* specific destination. No coding required—they simply interact with the webpage you hosted!
                     </p>
                 </div>
             </div>
@@ -570,11 +570,11 @@
         <!-- Footer Area -->
         <footer class="border-t border-slate-800 bg-slate-950 py-6 px-4 text-center text-xs text-slate-500 mt-auto">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>© 2026 NextBase Open-Source Relocation Assistant. Open to everyone. Built with ♥ by military spouses.</div>
+                <div>© 2026 ToMoveTo Open-Source Relocation Assistant. Open to everyone. Built with ♥ by military spouses.</div>
                 <div class="flex gap-4">
-                    <span onclick="resetOnboarding()" class="hover:text-indigo-400 transition-colors cursor-pointer"><i class="fa-solid fa-redo"></i> Setup Wizard</span>
+                    <span onclick="resetOnboarding()" class="hover:text-amber-400 transition-colors cursor-pointer"><i class="fa-solid fa-redo"></i> Setup Wizard</span>
                     <span>•</span>
-                    <span class="hover:text-indigo-400 transition-colors cursor-pointer">Submit Presets</span>
+                    <span class="hover:text-amber-400 transition-colors cursor-pointer">Submit Presets</span>
                 </div>
             </div>
         </footer>
