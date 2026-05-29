@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCS Compass - Global Family Relocation & School Planner</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom styling tweaks for smooth scroll and custom scrollbar -->
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 font-sans flex flex-col">
+
+    <script>
+        // Global State containing default preset and editable variables
+        const PRESETS = {
+            tinker_to_jbab: {
+                id: "tinker_to_jbab",
+                title: "Tinker AFB to JBAB",
+                origin: "Tinker AFB, OK",
+                destination: "JBAB (Joint Base Anacostia-Bolling), D.C.",
+                pcsDate: "2026-09-15",
+                settleDate: "2026-11-15",
+                budgetCap: 2500,
+                schoolCutoffMonth: 9,
+                schoolCutoffDay: 30,
+                husbandStart: "06:00",
+                children: [
+                    { id: 1, name: "Your Daughter (Girl)", dob: "2022-01-19", customNote: "Meets 4-by-Sept-30 cutoff. Fully qualifies for free, full-day public PK4 in Washington D.C." },
+                    { id: 2, name: "Your Son (Boy)", dob: "2023-05-20", customNote: "Meets 3-by-Sept-30 cutoff. Fully qualifies for free, full-day public PK3 in Washington D.C." }
+                ],
+                commutes: [
+                    { id: 1, name: "Navy Yard NFCU / Base", distance: "3.5 miles", time: "8 - 12 mins", note: "Straight shot over South Capitol St Bridge. Low stress, matches husband's drop-off." },
+                    { id: 2, name: "Crystal City NFCU (VA)", distance: "6.2 miles", time: "12 - 18 mins", note: "Split-commute across the Potomac. Requires coordination." },
+                    { id: 3, name: "Hybla Valley NFCU (Alexandria)", distance: "11.4 miles", time: "18 - 26 mins", note: "High commute strain. Direct bottleneck at the Woodrow Wilson Bridge." }
+                ],
+                schools: [
+                    { id: 1, name: "LEARN DC Charter School", type: "On-Base Public Charter", hours: "8:00 AM - 4:00 PM", notes: "50% seats reserved for military. Accepts post-lottery late enrollments for mid-year PCS." },
+                    { id: 2, name: "Leckie Education Campus", type: "Zoned Public (DCPS)", hours: "8:45 AM - 3:15 PM", notes: "Guaranteed right-to-attend for K+. Dedicated school bus picks up inside base housing." },
+                    { id: 3, name: "JBAB Child Development Center", type: "Subsidized Military Care", hours: "6:00 AM - 6:00 PM", notes: "Great fallback for early 06:00 shifts, but high waitlists. Sign up early on MilitaryChildCare.com." }
+                ]
+            },
+            ramstein_to_sandiego: {
+                id: "ramstein_to_sandiego",
+                title: "Ramstein AB to San Diego",
+                origin: "Ramstein AB, Germany",
+                destination: "Naval Base San Diego, CA",
+                pcsDate: "2026-07-10",
+                settleDate: "2026-08-15",
+                budgetCap: 3200,
+                schoolCutoffMonth: 9,
+                schoolCutoffDay: 1,
+                husbandStart: "07:30",
+                children: [
+                    { id: 1, name: "Older Child", dob: "2021-05-15", customNote: "Eligible for Transitional Kindergarten (TK) in California public schools." },
+                    { id: 2, name: "Younger Child", dob: "2023-11-10", customNote: "Too young for public preschool; will require subsidized Navy CDC or off-base daycare." }
+                ],
+                commutes: [
+                    { id: 1, name: "Naval Base Wet Side", distance: "2.1 miles", time: "5 - 10 mins", note: "Extremely close if living in Chollas Heights military housing." },
+                    { id: 2, name: "NFCU Mission Valley Branch", distance: "8.5 miles", time: "15 - 25 mins", note: "Straight drive up Interstate 15. Commute is heavy during peak rush hours." }
+                ],
+                schools: [
+                    { id: 1, name: "Silver Strand Elementary", type: "Coronado Unified", hours: "8:10 AM - 2:40 PM", notes: "Highly rated military-connected school; requires inter-district transfer if living off-base." },
+                    { id: 2, name: "Murphy Canyon Head Start", type: "On-Base Subsidized", hours: "8:00 AM - 2:30 PM", notes: "Income-capped and priority placement for junior enlisted families." }
+                ]
+            }
+        };
+
+        // Current Active Application State
+        let appState = {
+            activeTab: "planner", // planner, customizer, publish
+            selectedPreset: "tinker_to_jbab",
+            origin: "",
+            destination: "",
+            pcsDate: "",
+            settleDate: "",
+            budgetCap: 2500,
+            schoolCutoffMonth: 9,
+            schoolCutoffDay: 30,
+            husbandStart: "06:00",
+            children: [],
+            commutes: [],
+            schools: [],
+            selectedCommuteId: 1,
+            targetSchoolYear: 2026
+        };
+
+        // Initialize App State with default preset
+        function loadPreset(presetKey) {
+            const p = PRESETS[presetKey];
+            appState.selectedPreset = presetKey;
+            appState.origin = p.origin;
+            appState.destination = p.destination;
+            appState.pcsDate = p.pcsDate;
+            appState.settleDate = p.settleDate;
+            appState.budgetCap = p.budgetCap;
+            appState.schoolCutoffMonth = p.schoolCutoffMonth;
+            appState.schoolCutoffDay = p.schoolCutoffDay;
+            appState.husbandStart = p.husbandStart || "06:00";
+            appState.children = JSON.parse(JSON.stringify(p.children));
+            appState.commutes = JSON.parse(JSON.stringify(p.commutes));
+            appState.schools = JSON.parse(JSON.stringify(p.schools));
+            appState.selectedCommuteId = p.commutes[0]?.id || 1;
+            
+            // Sync customizer inputs
+            syncStateToForm();
+            render();
+        }
+    </script>
+
+    <script>
+        // Age and grade calculator
+        function calculateAgeDetails(dobString) {
+            if (!dobString) return { targetFormatted: "N/A", gradeLabel: "N/A" };
+            const dob = new Date(dobString);
+            const targetDate = new Date(appState.targetSchoolYear, appState.schoolCutoffMonth - 1, appState.schoolCutoffDay);
+            
+            let ageYears = targetDate.getFullYear() - dob.getFullYear();
+            let ageMonths = targetDate.getMonth() - dob.getMonth();
+            
+            if (ageMonths < 0 || (ageMonths === 0 && targetDate.getDate() < dob.getDate())) {
+                ageYears--;
+                ageMonths += 12;
+            }
+
+            const currentDiff = new Date() - dob;
+            const currentAgeYears = Math.floor(currentDiff / (1000 * 60 * 60 * 24 * 365.25));
+            const currentAgeMonths = Math.floor((currentDiff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.43));
+
+            let gradeLabel = "Too Young / Early Care";
+            if (ageYears === 3) gradeLabel = "Pre-Kindergarten 3 (PK3)";
+            else if (ageYears === 4) gradeLabel = "Pre-Kindergarten 4 (PK4)";
+            else if (ageYears === 5) gradeLabel = "Kindergarten (K)";
+            else if (ageYears > 5) gradeLabel = `Grade ${ageYears - 5}`;
+
+            return {
+                currentFormatted: `${currentAgeYears}y ${currentAgeMonths}m`,
+                targetFormatted: `${ageYears} yrs, ${ageMonths} mos`,
+                gradeLabel: gradeLabel,
+                badgeColor: ageYears === 3 ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                             ageYears === 4 ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                             ageYears >= 5 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-500/10 text-slate-400 border-slate-500/20"
+            };
+        }
+
+        // Helper to format date cleanly
+        function formatDateClean(dateStr) {
+            if (!dateStr) return "N/A";
+            const date = new Date(dateStr);
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+    </script>
+
+    <!-- Header Area -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-4 py-4 md:px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-compass-drafting text-lg text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                        PCS Compass <span class="text-indigo-400 text-xs font-semibold px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Tool</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Collaborative Family Relocation & Commute Planner</p>
+                </div>
+            </div>
+
+            <!-- Preset Selector -->
+            <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800 p-1 rounded-xl w-fit self-start md:self-auto">
+                <span class="text-[10px] text-slate-500 px-2 font-bold uppercase tracking-wider">PRESETS:</span>
+                <button onclick="loadPreset('tinker_to_jbab')" id="btn-preset-tinker" class="text-xs px-3 py-1.5 rounded-lg transition-all font-semibold">
+                    Tinker ➔ JBAB
+                </button>
+                <button onclick="loadPreset('ramstein_to_sandiego')" id="btn-preset-ramstein" class="text-xs px-3 py-1.5 rounded-lg transition-all font-semibold">
+                    Ramstein ➔ San Diego
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- Tab Navigation Bar -->
+        <div class="bg-slate-950 p-1 rounded-xl border border-slate-850 flex flex-wrap gap-1 shadow-inner">
+            <button onclick="switchTab('planner')" id="tab-planner" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
+                <i class="fa-solid fa-chart-line"></i> Active Planner Panel
+            </button>
+            <button onclick="switchTab('customizer')" id="tab-customizer" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
+                <i class="fa-solid fa-sliders"></i> Customize Your Base / PCS Details
+            </button>
+            <button onclick="switchTab('publish')" id="tab-publish" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
+                <i class="fa-brands fa-github text-emerald-400"></i> Publish To Your Own Website (Free!)
+            </button>
+        </div>
+
+        <!-- Custom Notification toast container -->
+        <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl bg-slate-950 border border-indigo-500/30 text-xs text-indigo-300 shadow-xl flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-check-circle text-emerald-400"></i>
+            <span id="toast-msg">Text copied successfully</span>
+        </div>
+
+        <!-- TAB 1: PLANNER PANEL -->
+        <div id="view-planner" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Grid: Relocation Details & Commutes -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <!-- Overview Card -->
+                <div class="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                    <h2 class="text-[11px] font-bold uppercase tracking-wider text-indigo-400 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-route"></i> Relocation Course
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Course Trajectory</div>
+                            <div class="text-sm font-extrabold text-white flex items-center gap-2 mt-0.5">
+                                <span id="lbl-origin">Tinker AFB</span>
+                                <i class="fa-solid fa-long-arrow-right text-indigo-400 text-xs"></i>
+                                <span id="lbl-destination">JBAB</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-1.5 border-t border-slate-900">
+                            <div>
+                                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">PCS Departure</div>
+                                <div id="lbl-pcs-date" class="text-xs font-semibold text-slate-300 mt-0.5">N/A</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Est. Settle Date</div>
+                                <div id="lbl-settle-date" class="text-xs font-semibold text-indigo-300 mt-0.5">N/A</div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-900 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide block">Monthly Rent Target</span>
+                                <span id="lbl-rent-cap" class="text-sm font-extrabold text-emerald-400">$0 / mo Max</span>
+                            </div>
+                            <span class="text-[9px] bg-emerald-500/10 border border-emerald-900/30 text-emerald-300 font-bold px-2 py-0.5 rounded-full uppercase">
+                                Budget Safe
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duty Commute Selector Card -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wider text-indigo-400 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-car"></i> Work Site Commute Routes
+                    </h2>
+                    <p class="text-[11px] text-slate-400 mb-4">Select a commute path to view dynamic route alignment on the analysis panel.</p>
+                    <div id="commute-buttons-list" class="space-y-2">
+                        <!-- Rendered Commute Routes will sit here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Grid: Family & Schooling Matrix -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- Dynamic Educational Eligibility Matrix -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                          <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                             <i class="fa-solid fa-graduation-cap text-indigo-400"></i> Children Age & School Eligibility
+                          </h3>
+                          <p class="text-xs text-slate-400">Live grade classification relative to destination station cutoff rules.</p>
+                        </div>
+                        
+                        <!-- Term school Selector -->
+                        <div class="flex items-center gap-2 self-start sm:self-auto bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1">
+                          <label for="select-school-year" class="text-[10px] text-slate-500 font-bold uppercase">School Term:</label>
+                          <select id="select-school-year" onchange="updateSchoolYear(this.value)" class="bg-transparent border-0 text-xs font-semibold text-indigo-300 focus:outline-none cursor-pointer">
+                            <option value="2026">Fall SY 2026-2027</option>
+                            <option value="2027">Fall SY 2027-2028</option>
+                            <option value="2028">Fall SY 2028-2029</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <div id="children-cards-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Dynamic Children Cards rendered here -->
+                    </div>
+                </div>
+
+                <!-- Targeted Education Facilities Profiles -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-base font-extrabold text-white mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-school text-indigo-400"></i> Destination School Facility Comparison
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Key school options supporting mid-year active duty transfers and transition options.</p>
+                    
+                    <div id="schools-display-list" class="space-y-4">
+                        <!-- Dynamic School options display here -->
+                    </div>
+                </div>
+
+                <!-- Selected Route Analysis Display -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-base font-extrabold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass-location text-indigo-400"></i> Active Workday Route Analysis
+                    </h3>
+                    <div id="active-commute-details" class="p-4 bg-indigo-950/20 border border-indigo-900/30 rounded-xl space-y-2">
+                        <!-- Dynamic details block here -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TAB 2: INTERACTIVE CUSTOMIZER PANEL -->
+        <div id="view-customizer" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-6">
+            <div>
+                <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-400"></i> Local Base Customizer & Form Forking
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                    Fill in the values below to instantly update the map and scheduler dashboard. You can customize the children's birth dates, commute distances, and exact local schools.
+                </p>
+            </div>
+
+            <!-- Block 1: Base Station Basics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-b border-slate-900 pb-6">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Origin Base Name</label>
+                    <input type="text" id="inp-origin" oninput="updateField('origin', this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Destination Base Name</label>
+                    <input type="text" id="inp-destination" oninput="updateField('destination', this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Rent Target Cap ($/mo)</label>
+                    <input type="number" id="inp-budget" oninput="updateField('budgetCap', parseInt(this.value) || 0)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">PCS Move/Departure Date</label>
+                    <input type="date" id="inp-pcsDate" oninput="updateField('pcsDate', this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Estimated Settle Date</label>
+                    <input type="date" id="inp-settleDate" oninput="updateField('settleDate', this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Cutoff Month</label>
+                        <select id="inp-cutoffMonth" onchange="updateField('schoolCutoffMonth', parseInt(this.value))" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Cutoff Day</label>
+                        <input type="number" id="inp-cutoffDay" min="1" max="31" oninput="updateField('schoolCutoffDay', parseInt(this.value) || 1)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Block 2: Interactive Children Profile Editor -->
+            <div class="border-b border-slate-900 pb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Children Profile Specifications</h4>
+                    <button onclick="addChild()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all">
+                        <i class="fa-solid fa-plus"></i> Add Child Profile
+                    </button>
+                </div>
+                <div id="customizer-children-list" class="space-y-3">
+                    <!-- Child edit blocks here -->
+                </div>
+            </div>
+
+            <!-- Block 3: Interactive Commutes Editor -->
+            <div class="border-b border-slate-900 pb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Commute Routes Configuration</h4>
+                    <button onclick="addCommute()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all">
+                        <i class="fa-solid fa-plus"></i> Add Commute Route
+                    </button>
+                </div>
+                <div id="customizer-commutes-list" class="space-y-3">
+                    <!-- Commute edit blocks here -->
+                </div>
+            </div>
+
+            <!-- Block 4: Interactive Schools Editor -->
+            <div class="border-b border-slate-900 pb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Local Schools Options</h4>
+                    <button onclick="addSchool()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all">
+                        <i class="fa-solid fa-plus"></i> Add School Option
+                    </button>
+                </div>
+                <div id="customizer-schools-list" class="space-y-3">
+                    <!-- School edit blocks here -->
+                </div>
+            </div>
+
+            <!-- Action footer block -->
+            <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                <button onclick="exportConfigJson()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-export"></i> Copy Setup JSON
+                </button>
+                <button onclick="switchTab('planner')" class="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 font-bold text-xs px-5 py-3 rounded-xl transition-all text-center">
+                    View Live Changes on Dashboard ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 3: PUBLISH TO GITHUB PAGES DIRECTIVE -->
+        <div id="view-publish" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-6">
+            <div>
+                <h3 class="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
+                    <i class="fa-brands fa-github"></i> Free Instant Website Deployment (3 Clicks)
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                    Follow these simple steps to host this planner as a living, public website that other military families can open directly in their browser without any tech setup.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+                <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
+                    <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">1</div>
+                    <h4 class="font-extrabold text-sm text-slate-200">1. Download This Web File</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Right-click anywhere on this website preview page and select <strong>"Save Page As..."</strong>, or download this template code directly and name the file precisely:
+                        <code class="block bg-slate-950 text-emerald-500 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800">index.html</code>
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
+                    <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">2</div>
+                    <h4 class="font-extrabold text-sm text-slate-200">2. Drag & Drop to GitHub</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Go to <a href="https://github.com" target="_blank" rel="noopener" class="text-indigo-400 underline font-semibold hover:text-indigo-300">GitHub.com</a> (create a free account if you don't have one). Click <strong>New Repository</strong>, name it <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">pcs-planner</code>, and check "Public". Drag your <code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">index.html</code> file directly into the browser to upload it!
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-slate-900/40 border border-slate-850 p-5 rounded-2xl space-y-3">
+                    <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">3</div>
+                    <h4 class="font-extrabold text-sm text-slate-200">3. Activate the Live Link</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        In your new repository, go to <strong>Settings ➔ Pages</strong>. Under "Branch", select <strong>main</strong> (or master), click <strong>Save</strong>. In 30 seconds, your site is live at:
+                        <code class="block bg-slate-950 text-emerald-400 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800 break-all">https://yourusername.github.io/pcs-planner/</code>
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl space-y-2 text-xs">
+                <strong class="text-indigo-300 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> How this serves other spouses:</strong>
+                <p class="text-slate-300 leading-relaxed">
+                    Once live, any other family can visit your link and use the interactive sliders and profile managers to update the dashboard for *their* specific base. There is no coding required on their end—they simply interact with the website page you hosted!
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-6 px-4 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>© 2026 Open-Source Military Relocation Assistant. Open to all branches worldwide.</div>
+            <div class="flex gap-4">
+                <span class="hover:text-indigo-400 transition-colors cursor-pointer">Fork Repo</span>
+                <span>•</span>
+                <span class="hover:text-indigo-400 transition-colors cursor-pointer">Submit Presets</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- core reactive rendering script -->
+    <script>
+        // Tab routing switcher
+        function switchTab(tabId) {
+            appState.activeTab = tabId;
+            
+            // Toggle visibility of views
+            document.getElementById("view-planner").classList.add("hidden");
+            document.getElementById("view-customizer").classList.add("hidden");
+            document.getElementById("view-publish").classList.add("hidden");
+            
+            if (tabId === "planner") document.getElementById("view-planner").classList.remove("hidden");
+            if (tabId === "customizer") document.getElementById("view-customizer").classList.remove("hidden");
+            if (tabId === "publish") document.getElementById("view-publish").classList.remove("hidden");
+
+            // Update Tab style states
+            const tabs = ["planner", "customizer", "publish"];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabId) {
+                    btn.className = "flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px] bg-indigo-600 text-white shadow";
+                } else {
+                    btn.className = "flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px] text-slate-400 hover:text-slate-200 hover:bg-slate-900";
+                }
+            });
+        }
+
+        // Field value modifications
+        function updateField(key, value) {
+            appState[key] = value;
+            render();
+        }
+
+        function updateSchoolYear(val) {
+            appState.targetSchoolYear = parseInt(val);
+            render();
+        }
+
+        // Children Array Helpers
+        function addChild() {
+            const nextId = appState.children.length > 0 ? Math.max(...appState.children.map(c => c.id)) + 1 : 1;
+            appState.children.push({
+                id: nextId,
+                name: `Child #${nextId}`,
+                dob: "2023-01-01",
+                customNote: "Edit custom notes inside the Customizer Tab."
+            });
+            render();
+            renderCustomizerLists();
+        }
+
+        function removeChild(id) {
+            appState.children = appState.children.filter(c => c.id !== id);
+            render();
+            renderCustomizerLists();
+        }
+
+        function updateChild(id, field, value) {
+            appState.children = appState.children.map(c => c.id === id ? { ...c, [field]: value } : c);
+            render();
+        }
+
+        // Commutes Array Helpers
+        function addCommute() {
+            const nextId = appState.commutes.length > 0 ? Math.max(...appState.commutes.map(c => c.id)) + 1 : 1;
+            appState.commutes.push({
+                id: nextId,
+                name: "New Work Site Location",
+                distance: "5 miles",
+                time: "15 mins",
+                note: "Add commute analysis details in customizer."
+            });
+            render();
+            renderCustomizerLists();
+        }
+
+        function removeCommute(id) {
+            appState.commutes = appState.commutes.filter(c => c.id !== id);
+            if (appState.selectedCommuteId === id) {
+                appState.selectedCommuteId = appState.commutes[0]?.id || null;
+            }
+            render();
+            renderCustomizerLists();
+        }
+
+        function updateCommute(id, field, value) {
+            appState.commutes = appState.commutes.map(c => c.id === id ? { ...c, [field]: value } : c);
+            render();
+        }
+
+        // Schools Array Helpers
+        function addSchool() {
+            const nextId = appState.schools.length > 0 ? Math.max(...appState.schools.map(s => s.id)) + 1 : 1;
+            appState.schools.push({
+                id: nextId,
+                name: "New Educational Facility",
+                type: "Public School Option",
+                hours: "8:00 AM - 3:00 PM",
+                notes: "Describe enrollment steps and priorities."
+            });
+            render();
+            renderCustomizerLists();
+        }
+
+        function removeSchool(id) {
+            appState.schools = appState.schools.filter(s => s.id !== id);
+            render();
+            renderCustomizerLists();
+        }
+
+        function updateSchool(id, field, value) {
+            appState.schools = appState.schools.map(s => s.id === id ? { ...s, [field]: value } : s);
+            render();
+        }
+
+        // Synchronize Active State directly back to Input Fields
+        function syncStateToForm() {
+            document.getElementById("inp-origin").value = appState.origin;
+            document.getElementById("inp-destination").value = appState.destination;
+            document.getElementById("inp-budget").value = appState.budgetCap;
+            document.getElementById("inp-pcsDate").value = appState.pcsDate;
+            document.getElementById("inp-settleDate").value = appState.settleDate;
+            document.getElementById("inp-cutoffMonth").value = appState.schoolCutoffMonth;
+            document.getElementById("inp-cutoffDay").value = appState.schoolCutoffDay;
+
+            renderCustomizerLists();
+        }
+
+        // Render input panels for children, commutes, and schools dynamically
+        function renderCustomizerLists() {
+            // Children List inside Customizer
+            const childDiv = document.getElementById("customizer-children-list");
+            childDiv.innerHTML = appState.children.map(c => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Name / Identifier</label>
+                        <input type="text" value="${c.name}" oninput="updateChild(${c.id}, 'name', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Date of Birth</label>
+                        <input type="date" value="${c.dob}" oninput="updateChild(${c.id}, 'dob', this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="flex-1 min-w-[220px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Custom Eligibility Note</label>
+                        <input type="text" value="${c.customNote}" oninput="updateChild(${c.id}, 'customNote', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none" placeholder="Notes detailing cutoff dates, school options, etc.">
+                    </div>
+                    <button onclick="removeChild(${c.id})" class="bg-red-950/40 text-red-400 border border-red-900/40 hover:bg-red-900 hover:text-white px-3 py-1.5 rounded-lg text-xs transition-all">Remove</button>
+                </div>
+            `).join('');
+
+            // Commutes List inside Customizer
+            const commuteDiv = document.getElementById("customizer-commutes-list");
+            commuteDiv.innerHTML = appState.commutes.map(c => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Location Name</label>
+                        <input type="text" value="${c.name}" oninput="updateCommute(${c.id}, 'name', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="w-24">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Distance</label>
+                        <input type="text" value="${c.distance}" oninput="updateCommute(${c.id}, 'distance', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="w-24">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Commute Time</label>
+                        <input type="text" value="${c.time}" oninput="updateCommute(${c.id}, 'time', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="flex-1 min-w-[220px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Strategy details / notes</label>
+                        <input type="text" value="${c.note}" oninput="updateCommute(${c.id}, 'note', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <button onclick="removeCommute(${c.id})" class="bg-red-950/40 text-red-400 border border-red-900/40 hover:bg-red-900 hover:text-white px-3 py-1.5 rounded-lg text-xs transition-all">Remove</button>
+                </div>
+            `).join('');
+
+            // Schools List inside Customizer
+            const schoolDiv = document.getElementById("customizer-schools-list");
+            schoolDiv.innerHTML = appState.schools.map(s => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">School Facility Name</label>
+                        <input type="text" value="${s.name}" oninput="updateSchool(${s.id}, 'name', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="w-44">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Facility Type</label>
+                        <input type="text" value="${s.type}" oninput="updateSchool(${s.id}, 'type', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="w-36">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Hours of Operation</label>
+                        <input type="text" value="${s.hours}" oninput="updateSchool(${s.id}, 'hours', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <div class="flex-1 min-w-[220px]">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase mb-1">Priority / Highlights Note</label>
+                        <input type="text" value="${s.notes}" oninput="updateSchool(${s.id}, 'notes', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none">
+                    </div>
+                    <button onclick="removeSchool(${s.id})" class="bg-red-950/40 text-red-400 border border-red-900/40 hover:bg-red-900 hover:text-white px-3 py-1.5 rounded-lg text-xs transition-all">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        // Export State to JSON for easy copy pasting inside repos
+        function exportConfigJson() {
+            const jsonStr = JSON.stringify(appState, null, 2);
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                showToast("Configuration copied! You can paste this JSON into your customizer loader.");
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-msg").textContent = message;
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 3000);
+        }
+
+        // Master UI Render Loop
+        function render() {
+            // Header Button styling
+            const tinkerBtn = document.getElementById("btn-preset-tinker");
+            const ramsteinBtn = document.getElementById("btn-preset-ramstein");
+            if (appState.selectedPreset === "tinker_to_jbab") {
+                tinkerBtn.className = "text-xs px-3 py-1.5 rounded-lg transition-all font-semibold bg-indigo-600 text-white shadow";
+                ramsteinBtn.className = "text-xs px-3 py-1.5 rounded-lg transition-all font-semibold text-slate-400 hover:text-slate-200";
+            } else {
+                ramsteinBtn.className = "text-xs px-3 py-1.5 rounded-lg transition-all font-semibold bg-indigo-600 text-white shadow";
+                tinkerBtn.className = "text-xs px-3 py-1.5 rounded-lg transition-all font-semibold text-slate-400 hover:text-slate-200";
+            }
+
+            // Sync overview cards
+            document.getElementById("lbl-origin").textContent = appState.origin.split(',')[0];
+            document.getElementById("lbl-destination").textContent = appState.destination.split(',')[0];
+            document.getElementById("lbl-pcs-date").textContent = formatDateClean(appState.pcsDate);
+            document.getElementById("lbl-settleDate-lbl") ? document.getElementById("lbl-settleDate-lbl").textContent = formatDateClean(appState.settleDate) : null;
+            document.getElementById("lbl-settle-date").textContent = formatDateClean(appState.settleDate);
+            document.getElementById("lbl-rent-cap").textContent = `$${appState.budgetCap.toLocaleString()} / mo Max`;
+
+            // Commute List render
+            const commuteListDiv = document.getElementById("commute-buttons-list");
+            commuteListDiv.innerHTML = appState.commutes.map(c => {
+                const isActive = appState.selectedCommuteId === c.id;
+                return `
+                    <button onclick="selectCommute(${c.id})" class="w-full text-left p-3.5 rounded-xl border transition-all duration-150 ${
+                        isActive ? 'border-indigo-500 bg-indigo-600/10 text-white' : 'border-slate-850 bg-slate-900/20 text-slate-400 hover:border-slate-700'
+                    }">
+                        <div class="flex justify-between items-center font-bold text-xs">
+                            <span class="text-slate-200">${c.name}</span>
+                            <span class="text-indigo-400 font-mono">${c.time}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
+                            <span>Distance: ${c.distance}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // Kids School Grid render
+            const childrenCardsList = document.getElementById("children-cards-list");
+            childrenCardsList.innerHTML = appState.children.map(c => {
+                const ageDetails = calculateAgeDetails(c.dob);
+                return `
+                    <div class="bg-slate-900/50 border border-slate-850 rounded-xl overflow-hidden p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-sm text-white">${c.name}</h4>
+                                    <p class="text-[10px] text-slate-400 font-mono mt-0.5"><i class="fa-solid fa-cake-candles"></i> DOB: ${c.dob}</p>
+                                </div>
+                                <span class="text-[10px] border px-2 py-0.5 rounded font-extrabold ${ageDetails.badgeColor}">
+                                    ${ageDetails.gradeLabel}
+                                </span>
+                            </div>
+                            
+                            <div class="mt-3 grid grid-cols-2 gap-2 text-xs border-t border-slate-850 pt-2.5">
+                                <div>
+                                    <span class="text-[9px] text-slate-500 uppercase block font-bold">Current Age:</span>
+                                    <span class="font-semibold text-slate-300">${ageDetails.currentFormatted}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] text-slate-500 uppercase block font-bold">Age by Cutoff (${appState.schoolCutoffMonth}/${appState.schoolCutoffDay}):</span>
+                                    <span class="font-semibold text-slate-300">${ageDetails.targetFormatted}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${c.customNote ? `
+                            <div class="mt-3 p-2 bg-slate-950 rounded text-[11px] text-slate-400 leading-relaxed border border-slate-800/60">
+                                <strong>Logistics Note:</strong> ${c.customNote}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Target Schools render
+            const schoolsListDiv = document.getElementById("schools-display-list");
+            schoolsListDiv.innerHTML = appState.schools.map(s => `
+                <div class="bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col md:flex-row justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-sm text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-school-flag text-indigo-400 text-xs"></i> ${s.name}
+                            </h4>
+                            <span class="text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-900/30 px-2 py-0.5 rounded font-semibold">${s.type}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono">Operating Hours: ${s.hours}</p>
+                        <p class="text-xs text-slate-300 leading-relaxed pt-1">${s.notes}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Active Commute render
+            const activeCommuteDetails = document.getElementById("active-commute-details");
+            const currentCommute = appState.commutes.find(c => c.id === appState.selectedCommuteId);
+            if (currentCommute) {
+                activeCommuteDetails.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-indigo-900/20 pb-2">
+                        <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <i class="fa-solid fa-map-pin"></i> ${currentCommute.name}
+                        </span>
+                        <span class="text-xs font-mono font-extrabold text-indigo-300">
+                            Distance: ${currentCommute.distance} • Est: ${currentCommute.time}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed pt-1">
+                        ${currentCommute.note || 'No custom analysis written for this commute. Tap on the "Customize" tab above to map out routes and travel plans.'}
+                    </p>
+                `;
+            } else {
+                activeCommuteDetails.innerHTML = `<p class="text-xs text-slate-400 italic">No commute route selected on the left sidebar.</p>`;
+            }
+        }
+
+        // Active commute target selection
+        function selectCommute(id) {
+            appState.selectedCommuteId = id;
+            render();
+        }
+
+        // Start App
+        window.onload = function() {
+            loadPreset("tinker_to_jbab");
+        }
+    </script>
+</body>
+</html>
