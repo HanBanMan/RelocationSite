@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCS Compass - Global Family Relocation & School Planner</title>
+    <title>NextBase - Global Relocation, School & Commute Planner</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Premium Icons -->
@@ -178,13 +178,13 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-compass-drafting text-lg text-white"></i>
+                    <i class="fa-solid fa-house-chimney text-lg text-white"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                        PCS Compass <span class="text-indigo-400 text-xs font-semibold px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Tool</span>
+                        NextBase <span class="text-indigo-400 text-xs font-semibold px-2 py-0.5 bg-indigo-950/50 border border-indigo-800/40 rounded-full">Global Relocation & School Planner</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Collaborative Family Relocation & Commute Planner</p>
+                    <p class="text-xs text-slate-400">Built by military spouses. Designed for everyone finding their next base, state, or neighborhood.</p>
                 </div>
             </div>
 
@@ -207,13 +207,13 @@
         <!-- Tab Navigation Bar -->
         <div class="bg-slate-950 p-1 rounded-xl border border-slate-850 flex flex-wrap gap-1 shadow-inner">
             <button onclick="switchTab('planner')" id="tab-planner" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
-                <i class="fa-solid fa-chart-line"></i> Active Planner Panel
+                <i class="fa-solid fa-chart-line"></i> Active NextBase Panel
             </button>
             <button onclick="switchTab('customizer')" id="tab-customizer" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
-                <i class="fa-solid fa-sliders"></i> Customize Your Base / PCS Details
+                <i class="fa-solid fa-sliders"></i> Customize Your NextBase
             </button>
             <button onclick="switchTab('publish')" id="tab-publish" class="flex-1 py-3 px-4 rounded-lg text-xs font-extrabold transition-all duration-200 flex items-center justify-center gap-2 min-w-[140px]">
-                <i class="fa-brands fa-github text-emerald-400"></i> Publish To Your Own Website (Free!)
+                <i class="fa-brands fa-github text-emerald-400"></i> Publish to GitHub Pages (Free!)
             </button>
         </div>
 
@@ -248,7 +248,7 @@
 
                         <div class="grid grid-cols-2 gap-4 pt-1.5 border-t border-slate-900">
                             <div>
-                                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">PCS Departure</div>
+                                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Departure Date</div>
                                 <div id="lbl-pcs-date" class="text-xs font-semibold text-slate-300 mt-0.5">N/A</div>
                             </div>
                             <div>
@@ -341,7 +341,7 @@
         <div id="view-customizer" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-6">
             <div>
                 <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-indigo-400"></i> Local Base Customizer & Form Forking
+                    <i class="fa-solid fa-sliders text-indigo-400"></i> NextBase Customizer & Form Forking
                 </h3>
                 <p class="text-xs text-slate-400 mt-1">
                     Fill in the values below to instantly update the map and scheduler dashboard. You can customize the children's birth dates, commute distances, and exact local schools.
@@ -363,7 +363,7 @@
                     <input type="number" id="inp-budget" oninput="updateField('budgetCap', parseInt(this.value) || 0)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">PCS Move/Departure Date</label>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Departure Date</label>
                     <input type="date" id="inp-pcsDate" oninput="updateField('pcsDate', this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-xs focus:border-indigo-500 focus:outline-none">
                 </div>
                 <div>
@@ -452,7 +452,7 @@
                     <i class="fa-brands fa-github"></i> Free Instant Website Deployment (3 Clicks)
                 </h3>
                 <p class="text-xs text-slate-400 mt-1">
-                    Follow these simple steps to host this planner as a living, public website that other military families can open directly in their browser without any tech setup.
+                    Follow these simple steps to host NextBase as a living, public website that other families can open directly in their browser without any tech setup.
                 </p>
             </div>
 
@@ -472,7 +472,7 @@
                     <div class="h-8 w-8 bg-indigo-600/20 text-indigo-400 font-black flex items-center justify-center rounded-full text-sm border border-indigo-800">2</div>
                     <h4 class="font-extrabold text-sm text-slate-200">2. Drag & Drop to GitHub</h4>
                     <p class="text-xs text-slate-400 leading-relaxed">
-                        Go to <a href="https://github.com" target="_blank" rel="noopener" class="text-indigo-400 underline font-semibold hover:text-indigo-300">GitHub.com</a> (create a free account if you don't have one). Click <strong>New Repository</strong>, name it <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">pcs-planner</code>, and check "Public". Drag your <code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">index.html</code> file directly into the browser to upload it!
+                        Go to <a href="https://github.com" target="_blank" rel="noopener" class="text-indigo-400 underline font-semibold hover:text-indigo-300">GitHub.com</a> (create a free account if you don't have one). Click <strong>New Repository</strong>, name it <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">nextbase</code>, and check "Public". Drag your <code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">index.html</code> file directly into the browser to upload it!
                     </p>
                 </div>
 
@@ -482,15 +482,15 @@
                     <h4 class="font-extrabold text-sm text-slate-200">3. Activate the Live Link</h4>
                     <p class="text-xs text-slate-400 leading-relaxed">
                         In your new repository, go to <strong>Settings ➔ Pages</strong>. Under "Branch", select <strong>main</strong> (or master), click <strong>Save</strong>. In 30 seconds, your site is live at:
-                        <code class="block bg-slate-950 text-emerald-400 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800 break-all">https://yourusername.github.io/pcs-planner/</code>
+                        <code class="block bg-slate-950 text-emerald-400 p-2 rounded-lg mt-2 font-mono text-[11px] border border-slate-800 break-all">https://yourusername.github.io/nextbase/</code>
                     </p>
                 </div>
             </div>
 
             <div class="p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl space-y-2 text-xs">
-                <strong class="text-indigo-300 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> How this serves other spouses:</strong>
+                <strong class="text-indigo-300 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> How this serves other families:</strong>
                 <p class="text-slate-300 leading-relaxed">
-                    Once live, any other family can visit your link and use the interactive sliders and profile managers to update the dashboard for *their* specific base. There is no coding required on their end—they simply interact with the website page you hosted!
+                    Once live, any other moving family can visit your link and use the interactive sliders and profile managers to update the NextBase dashboard for *their* specific destination. No coding required—they simply interact with the webpage you hosted!
                 </p>
             </div>
         </div>
@@ -500,7 +500,7 @@
     <!-- Footer Area -->
     <footer class="border-t border-slate-800 bg-slate-950 py-6 px-4 text-center text-xs text-slate-500 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>© 2026 Open-Source Military Relocation Assistant. Open to all branches worldwide.</div>
+            <div>© 2026 NextBase Open-Source Relocation Assistant. Open to everyone. Built with ♥ by military spouses.</div>
             <div class="flex gap-4">
                 <span class="hover:text-indigo-400 transition-colors cursor-pointer">Fork Repo</span>
                 <span>•</span>
@@ -542,6 +542,7 @@
             render();
         }
 
+        // Dropdown year handler
         function updateSchoolYear(val) {
             appState.targetSchoolYear = parseInt(val);
             render();
@@ -725,7 +726,7 @@
             }, 3000);
         }
 
-        // Master UI Render Loop
+        // Master NextBase UI Render Loop
         function render() {
             // Header Button styling
             const tinkerBtn = document.getElementById("btn-preset-tinker");
@@ -742,7 +743,6 @@
             document.getElementById("lbl-origin").textContent = appState.origin.split(',')[0];
             document.getElementById("lbl-destination").textContent = appState.destination.split(',')[0];
             document.getElementById("lbl-pcs-date").textContent = formatDateClean(appState.pcsDate);
-            document.getElementById("lbl-settleDate-lbl") ? document.getElementById("lbl-settleDate-lbl").textContent = formatDateClean(appState.settleDate) : null;
             document.getElementById("lbl-settle-date").textContent = formatDateClean(appState.settleDate);
             document.getElementById("lbl-rent-cap").textContent = `$${appState.budgetCap.toLocaleString()} / mo Max`;
 
@@ -770,7 +770,7 @@
             childrenCardsList.innerHTML = appState.children.map(c => {
                 const ageDetails = calculateAgeDetails(c.dob);
                 return `
-                    <div class="bg-slate-900/50 border border-slate-850 rounded-xl overflow-hidden p-4 flex flex-col justify-between">
+                    <div class="bg-slate-900/50 border border-slate-855 rounded-xl overflow-hidden p-4 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-start">
                                 <div>
